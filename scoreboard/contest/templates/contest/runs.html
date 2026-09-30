@@ -1,0 +1,143 @@
+{% load time_filters %}
+<div class="card-robo" style="overflow-x:auto;">
+  <div style="min-width:480px;">
+    <table class="table table-hover mb-0 competition-table">
+      <thead>
+        <tr>
+          <th>Team</th>
+          <th>Started</th>
+          <th>State</th>
+          {% if competition.competition_type == 'TIMED' %}
+            <th>Raw time</th>
+            <th>Penalty</th>
+            <th>Total time</th>
+          {% else %}
+            <th>Score</th>
+            <th>Penalty</th>
+            <th>Effective</th>
+          {% endif %}
+          <th>Best</th>
+          <th>Comment</th>
+          {% if show_controls and competition.status == 'OPEN' %}<th>Action</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in runs %}
+        <tr{% if item.is_best %} class="best-run"{% endif %}>
+          <td class="fw-semibold">{{ item.team.name }}</td>
+          <td style="font-size:13px;color:#6b7a8d;">{{ item.start_time|date:"H:i:s" }}</td>
+          <td>
+            {% if item.state == 'ACTIVE' %}
+              <span class="badge badge-state-active">Active</span>
+            {% elif item.state == 'COMPLETED' %}
+              <span class="badge badge-state-completed">Done</span>
+            {% elif item.state == 'VOIDED' %}
+              <span class="badge badge-state-voided">Voided</span>
+            {% elif item.state == 'MANUAL' %}
+              <span class="badge badge-state-completed" title="Entered by hand after the run was voided">Manual</span>
+            {% else %}
+              <span class="badge badge-state-pending">{{ item.get_state_display }}</span>
+            {% endif %}
+          </td>
+          {% if competition.competition_type == 'TIMED' %}
+            <td>{{ item.time_ms|format_ms }}</td>
+            <td>{% if item.penalty_time_ms %}<span class="text-danger">+{{ item.penalty_time_ms|format_ms }}</span>{% else %}&mdash;{% endif %}</td>
+            <td>
+              {% if item.time_ms %}
+                <strong class="text-teal">{{ item.total_time_ms|format_ms }}</strong>
+              {% else %}
+                &mdash;
+              {% endif %}
+            </td>
+          {% else %}
+            <td>
+              {% if item.score %}{{ item.score }}{% else %}&mdash;{% endif %}
+            </td>
+            <td>{% if item.penalty_points %}<span class="text-danger">&minus;{{ item.penalty_points }}</span>{% else %}&mdash;{% endif %}</td>
+            <td>
+              {% if item.score %}<strong class="text-teal">{{ item.effective_score }}</strong>{% else %}&mdash;{% endif %}
+            </td>
+          {% endif %}
+          <td>
+            {% if item.is_best %}<span class="text-gold fw-bold" title="Best run">&#9733;</span>{% endif %}
+          </td>
+          <td style="font-size:13px;color:#6b7a8d;">{{ item.judge_comment }}</td>
+          {% if show_controls and competition.status == 'OPEN' %}
+          <td>
+            {% if competition.competition_type == 'TIMED' %}
+              {% if item.state == 'PENDING' %}
+                <button class="btn btn-sm btn-action-primary" onclick="startRun({{ item.id }})">Start</button>
+                <button class="btn btn-sm btn-action-secondary" onclick="discardRun({{ item.id }})"
+                        title="Remove this queued run — the attempt is not used">Discard</button>
+              {% elif item.state == 'ACTIVE' %}
+                <button class="btn btn-sm btn-action-danger" onclick="stopRun({{ item.id }})">Void</button>
+              {% elif item.state == 'VOIDED' %}
+                <form method="post" action="{% url 'contest:run_manual_entry' item.id %}" class="d-flex gap-1 flex-wrap mt-1">
+                  {% csrf_token %}
+                  <input type="number" name="manual_time_ms" min="1" placeholder="Time (ms)" class="form-control form-control-sm" style="width:8em;" required>
+                  <input type="text" name="comment" placeholder="Note" class="form-control form-control-sm" style="width:9em;" maxlength="200">
+                  <button type="submit" class="btn btn-sm btn-action-secondary">Manual</button>
+                </form>
+              {% endif %}
+              {% if item.state == 'ACTIVE' or item.state == 'COMPLETED' or item.state == 'MANUAL' %}
+                <div class="d-flex gap-1 flex-wrap mt-1">
+                  <input type="number" min="0" step="0.1" id="pen-{{ item.id }}"
+                         value="{{ item.penalty_time_ms|penalty_seconds }}"
+                         class="form-control form-control-sm" style="width:6em;"
+                         title="Penalty in seconds, added to the raw time">
+                  <button class="btn btn-sm btn-action-secondary" onclick="setPenalty({{ item.id }})">
+                    Penalty (s)
+                  </button>
+                </div>
+              {% endif %}
+            {% elif competition.competition_type == 'JUDGED' %}
+              {% if item.state == 'PENDING' %}
+                <button class="btn btn-sm btn-action-primary" onclick="startRun({{ item.id }})">Start</button>
+                <button class="btn btn-sm btn-action-secondary" onclick="discardRun({{ item.id }})"
+                        title="Remove this queued run — the attempt is not used">Discard</button>
+              {% endif %}
+              {% if item.state == 'PENDING' or item.state == 'ACTIVE' %}
+                <form method="post" action="{% url 'contest:run_score' item.id %}" class="d-flex gap-1 flex-wrap mt-1">
+                  {% csrf_token %}
+                  <input type="number" name="score" min="1" max="100" placeholder="1–100" class="form-control form-control-sm" style="width:5em;" required>
+                  <input type="number" name="penalty_points" min="0" max="100" placeholder="Pen." class="form-control form-control-sm" style="width:5em;"
+                         title="Penalty points, subtracted from the score">
+                  <input type="text" name="comment" placeholder="Comment" class="form-control form-control-sm" style="width:9em;" maxlength="200">
+                  <button type="submit" class="btn btn-sm btn-action-primary">Score</button>
+                </form>
+              {% endif %}
+              {% if item.state == 'COMPLETED' or item.state == 'MANUAL' %}
+                <div class="d-flex gap-1 flex-wrap mt-1">
+                  <input type="number" min="0" max="100" id="pen-{{ item.id }}"
+                         value="{% if item.penalty_points %}{{ item.penalty_points }}{% endif %}"
+                         class="form-control form-control-sm" style="width:6em;"
+                         title="Penalty points, subtracted from the score">
+                  <button class="btn btn-sm btn-action-secondary" onclick="setPenalty({{ item.id }})">
+                    Penalty (pts)
+                  </button>
+                </div>
+              {% endif %}
+              {% if item.state == 'ACTIVE' %}
+                <button class="btn btn-sm btn-action-danger mt-1" onclick="stopRun({{ item.id }})">Void</button>
+              {% endif %}
+              {% if item.state == 'VOIDED' %}
+                <form method="post" action="{% url 'contest:run_manual_entry' item.id %}" class="d-flex gap-1 flex-wrap mt-1">
+                  {% csrf_token %}
+                  <input type="number" name="score" min="1" max="100" placeholder="1–100" class="form-control form-control-sm" style="width:5em;" required>
+                  <input type="text" name="comment" placeholder="Note" class="form-control form-control-sm" style="width:9em;" maxlength="200">
+                  <button type="submit" class="btn btn-sm btn-action-secondary">Manual</button>
+                </form>
+              {% endif %}
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="10" class="text-center text-muted py-3">No runs yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

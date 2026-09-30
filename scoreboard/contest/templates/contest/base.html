@@ -1,0 +1,14 @@
+{% extends "contest/base_site.html" %}
+{% block extra_css %}
+<style>
+  /* Judge area: visible borders on white cards against #f4f7f9 body */
+  .contest-card { border: 1px solid #dde3ec !important; box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important; }
+  .card-robo    { border: 1px solid #dde3ec !important; box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important; }
+  .form-card    { border: 1px solid #dde3ec !important; box-shadow: 0 2px 8px rgba(0,0,0,0.09) !important; }
+</style>
+{% endblock %}
+{% block page_content %}
+<div class="container-xl py-4">
+  {% block content %}{% endblock %}
+</div>
+{% endblock %}

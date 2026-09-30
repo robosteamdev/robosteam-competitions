@@ -1,0 +1,97 @@
+{% extends "contest/judge_mobile/base.html" %}
+{% block title %}<title>Enter Score — RoboSTEAM Judge</title>{% endblock %}
+
+{% block body %}
+<div class="jm-topbar">
+  <a href="{% url 'contest:judge_panel' competition.id %}" class="jm-back">&#8592;</a>
+  <div>
+    <div class="jm-track-name">{{ competition.name }}</div>
+    <div class="jm-competition-name">Score for {{ run.team.name }}</div>
+  </div>
+</div>
+
+<div class="jm-state" style="padding-top:1rem;">
+  <div class="jm-team-name" style="font-size:1.3rem;margin-bottom:0.25rem;">{{ run.team.name }}</div>
+  <div class="jm-run-label" style="margin-bottom:1.5rem;">Enter score (1&ndash;100)</div>
+
+  <div id="jm-score-display" class="jm-score-display placeholder">&mdash;</div>
+
+  {% if error %}
+  <div style="color:#e03e3e;font-size:0.9rem;margin-bottom:1rem;">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" id="score-form">
+    {% csrf_token %}
+    <input type="hidden" name="score" id="score-input" value="">
+
+    <label for="penalty-input"
+           style="display:block;color:var(--jm-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.35rem;">
+      Penalty points (optional)
+    </label>
+    <input type="number" name="penalty_points" id="penalty-input" min="0" max="100"
+           inputmode="numeric" placeholder="0"
+           style="width:100%;padding:0.6rem;font-size:1.1rem;text-align:center;margin-bottom:1rem;border-radius:8px;border:1px solid #33415c;background:#1b2436;color:#fff;">
+
+    <div class="jm-numpad">
+      {% for digit in "789456123" %}
+        <button type="button" class="jm-numpad-btn" onclick="pad('{{ digit }}')">{{ digit }}</button>
+      {% endfor %}
+      <button type="button" class="jm-numpad-btn jm-numpad-clear" onclick="padClear()">C</button>
+      <button type="button" class="jm-numpad-btn" onclick="pad('0')">0</button>
+      <button type="button" class="jm-numpad-btn jm-numpad-back" onclick="padBack()">&#9003;</button>
+    </div>
+
+    <button type="submit" class="jm-btn jm-btn-submit" id="submit-btn" disabled
+            onclick="return validateScore()">
+      Submit Score
+    </button>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var score = '';
+
+function updateDisplay() {
+  var el  = document.getElementById('jm-score-display');
+  var btn = document.getElementById('submit-btn');
+  if (!score) {
+    el.textContent = '—';
+    el.classList.add('placeholder');
+    btn.disabled = true;
+  } else {
+    var n = parseInt(score, 10);
+    el.textContent = score;
+    el.classList.remove('placeholder');
+    btn.disabled = !(n >= 1 && n <= 100);
+  }
+  document.getElementById('score-input').value = score;
+}
+
+function pad(d) {
+  var next = score + d;
+  if (parseInt(next, 10) > 100) return;
+  if (next.length > 3) return;
+  score = next;
+  updateDisplay();
+}
+
+function padBack() {
+  score = score.slice(0, -1);
+  updateDisplay();
+}
+
+function padClear() {
+  score = '';
+  updateDisplay();
+}
+
+function validateScore() {
+  var n = parseInt(score, 10);
+  if (!n || n < 1 || n > 100) { return false; }
+  return true;
+}
+</script>
+{% endblock %}

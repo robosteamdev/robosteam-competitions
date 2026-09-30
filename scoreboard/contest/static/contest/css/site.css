@@ -1,0 +1,584 @@
+/* RoboSTEAM Academy — Competition Platform — site.css */
+/* Design A: Dark navy navbar, teal accent, gold CTA */
+
+:root {
+  color-scheme: only light;
+  --primary: #2d8fa5;
+  --primary-dark: #1d5e70;
+  --gold: #f5a623;
+  --navy: #0f1728;
+  --surface: #f4f7f9;
+  --text: #1a2332;
+  --text-muted: #6b7a8d;
+  --card-radius: 12px;
+}
+
+/* ---------- Base ---------- */
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+}
+
+a {
+  color: var(--primary);
+}
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* ---------- Navbar ---------- */
+.navbar-robosteam {
+  background-color: var(--navy);
+  border-bottom: 3px solid var(--primary);
+}
+
+.navbar-robosteam .navbar-brand img {
+  height: 52px;
+}
+
+.navbar-robosteam .nav-link {
+  color: #e0eaf0;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.5rem 0.9rem;
+  transition: color 0.15s;
+}
+
+.navbar-robosteam .nav-link:hover,
+.navbar-robosteam .nav-link.active {
+  color: var(--primary);
+}
+
+.navbar-robosteam .dropdown-menu {
+  background-color: #172030;
+  border: 1px solid #2d8fa530;
+  border-radius: 8px;
+  min-width: 220px;
+}
+
+.navbar-robosteam .dropdown-item {
+  color: #c8d8e4;
+  font-size: 13.5px;
+  padding: 0.45rem 1rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar-robosteam .dropdown-item:hover {
+  background-color: #2d8fa520;
+  color: #fff;
+}
+
+.navbar-robosteam .erasmus-logo {
+  height: 70px;
+}
+
+.btn-judge-login {
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-judge-login:hover {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.navbar-toggler {
+  border-color: #2d8fa5;
+}
+
+/* ---------- Hero (homepage) ---------- */
+.hero-section {
+  background: var(--navy);
+  padding: 5rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--gold));
+}
+
+.hero-heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.hero-subheading {
+  color: #8bc8d8;
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin-top: 0.75rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.hero-robot-placeholder {
+  background: rgba(45, 143, 165, 0.08);
+  border: 2px dashed #2d8fa5;
+  border-radius: 16px;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4aabbd;
+  font-size: 1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.hero-wave {
+  display: block;
+  margin-top: -2px;
+}
+
+/* ---------- Section headings ---------- */
+.section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 48px; height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+/* ---------- Cards ---------- */
+.card-robo {
+  border: none;
+  border-radius: var(--card-radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  color: var(--text) !important;
+  overflow: hidden;
+  height: 100%;
+}
+
+.card-robo:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.card-robo .card-cover {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.card-robo .card-cover-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--navy);
+  border-bottom: 2px dashed #2d8fa550;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4aabbd;
+  font-size: 0.85rem;
+}
+
+.card-gallery-cover {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+
+.card-gallery-placeholder {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: var(--navy);
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+  border-bottom: 2px dashed #2d8fa550;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4aabbd;
+  font-size: 0.85rem;
+}
+
+/* ---------- Badges / chips ---------- */
+.badge-teal {
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.badge-gold {
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.badge-state-active  { background: #2d8fa5; color: #fff; }
+.badge-state-pending { background: #f5a623; color: #1a2332; }
+.badge-state-completed { background: #28a745; color: #fff; }
+.badge-state-voided  { background: #6c757d; color: #fff; }
+
+.badge-timed  { background: #0d6efd22; color: #0d6efd; border: 1px solid #0d6efd44; }
+.badge-judged { background: #6f42c122; color: #6f42c1; border: 1px solid #6f42c144; }
+
+/* ---------- Buttons ---------- */
+.btn-primary-teal {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.btn-primary-teal:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: #fff;
+}
+
+.btn-gold-fill {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+  font-weight: 700;
+  border-radius: 8px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-gold-fill:hover {
+  background: #e09510;
+  border-color: #e09510;
+  color: var(--navy);
+  box-shadow: 0 4px 12px rgba(245,166,35,0.35);
+}
+
+.btn-outline-teal {
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-outline-teal:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Judge/organiser action buttons */
+.btn-action-primary { background: var(--gold); color: var(--navy); border: none; font-weight: 600; }
+.btn-action-primary:hover { background: #e09510; color: var(--navy); }
+.btn-action-secondary { border: 1.5px solid var(--primary); color: var(--primary); background: transparent; font-weight: 500; }
+.btn-action-secondary:hover { background: var(--primary); color: #fff; }
+.btn-action-danger { border: 1.5px solid #dc3545; color: #dc3545; background: transparent; font-weight: 500; }
+.btn-action-danger:hover { background: #dc3545; color: #fff; }
+
+/* ---------- Announcement cards ---------- */
+.announcement-card {
+  border-left: 4px solid var(--gold);
+  background: #fff;
+  color: var(--text) !important;
+  border-radius: 0 var(--card-radius) var(--card-radius) 0;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.announcement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+.announcement-date {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- Competition table (judge area) ---------- */
+.competition-table th {
+  background: var(--primary);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  border: none;
+}
+
+.competition-table td {
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.competition-table tr.best-run {
+  background: rgba(245, 166, 35, 0.08);
+  font-weight: 700;
+}
+
+.competition-table tr.best-run td:first-child::before {
+  content: '★ ';
+  color: var(--gold);
+}
+
+/* ---------- Podium (ranking page) ---------- */
+.podium-1 { background: linear-gradient(135deg, #ffd700, #f5c518); }
+.podium-2 { background: linear-gradient(135deg, #c0c0c0, #adb5bd); }
+.podium-3 { background: linear-gradient(135deg, #cd7f32, #b87333); }
+.podium-card {
+  border-radius: var(--card-radius);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #1a2332;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.podium-rank {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.podium-team {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+.podium-pts {
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+  opacity: 0.8;
+}
+
+/* ---------- Competition cards (contest list) ---------- */
+.contest-card {
+  background: #fff;
+  border-radius: var(--card-radius);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+.contest-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.contest-card h5 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---------- Forms (judge area) ---------- */
+.form-card {
+  background: #fff;
+  border-radius: var(--card-radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  margin-bottom: 1rem;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  background: var(--primary-dark);
+  color: #c8dde4;
+  padding: 3rem 0 0;
+  margin-top: 4rem;
+  font-size: 14px;
+}
+
+.site-footer h6 {
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+}
+
+.site-footer a {
+  color: #a8c8d4;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.site-footer a:hover {
+  color: #fff;
+}
+
+.site-footer .footer-bottom {
+  background: rgba(0,0,0,0.2);
+  padding: 1rem 0;
+  font-size: 12px;
+  color: #8aabb6;
+  margin-top: 2rem;
+}
+
+.site-footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.site-footer li {
+  margin-bottom: 0.4rem;
+}
+
+/* ---------- Partner logo strip ---------- */
+.partner-logo {
+  height: 48px;
+  filter: grayscale(1) opacity(0.6);
+  transition: filter 0.2s, opacity 0.2s;
+}
+.partner-logo:hover {
+  filter: grayscale(0) opacity(1);
+}
+
+/* ---------- About section ---------- */
+.about-section {
+  background: #fff;
+  border-radius: var(--card-radius);
+  padding: 2.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* ---------- Gallery photo grid ---------- */
+.gallery-photo-item img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.gallery-photo-item img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* ---------- Live board WS indicator ---------- */
+#ws-status {
+  font-size: 14px;
+  cursor: default;
+}
+
+/* ---------- Auth / login page ---------- */
+.login-card {
+  max-width: 400px;
+  margin: 4rem auto;
+  background: #fff;
+  border-radius: var(--card-radius);
+  padding: 2.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+/* ---------- Utilities ---------- */
+.text-teal { color: var(--primary); }
+.text-gold { color: var(--gold); }
+.bg-navy { background: var(--navy); }
+.bg-surface { background: var(--surface); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .hero-heading { font-size: 1.9rem; }
+  .hero-robot-placeholder { height: 200px; }
+  .navbar-robosteam .nav-link { color: #c8d8e4; padding: 0.5rem 1rem; }
+  .navbar-robosteam .dropdown-item { color: #a8c0cc; }
+}
+
+/* ---------- Organiser page header ---------- */
+.page-header-organise {
+  background: var(--navy);
+  border-bottom: 3px solid var(--primary);
+  padding: 1.5rem 0 1.25rem;
+  margin-bottom: 2rem;
+}
+.page-header-organise .page-header-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.page-header-organise .page-header-sub {
+  font-size: 0.82rem;
+  color: #8aabb6;
+  margin-top: 0.2rem;
+}
+.page-header-organise .breadcrumb {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 0.82rem;
+}
+.page-header-organise .breadcrumb-item a { color: var(--primary); }
+.page-header-organise .breadcrumb-item.active { color: #8aabb6; }
+.page-header-organise .breadcrumb-item + .breadcrumb-item::before { color: #4a6070; }
+
+/* Scoreboard — promoted out of the Contests dropdown to a top-level nav item.
+   During a live event this is the page spectators, teams and teachers all want,
+   so it carries the teal accent to separate it from the content menus without
+   competing with the gold Admin link. */
+.navbar-robosteam .nav-link-scoreboard {
+  color: var(--primary);
+  font-weight: 600;
+  border: 1.5px solid var(--primary);
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  margin: 0 0.15rem;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.navbar-robosteam .nav-link-scoreboard:hover,
+.navbar-robosteam .nav-link-scoreboard.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Collapsed (mobile) navbar: the pill reads as a stray button in a stacked
+   list, so drop back to a plain accented row like the other items. */
+@media (max-width: 991.98px) {
+  .navbar-robosteam .nav-link-scoreboard {
+    border: none;
+    border-radius: 0;
+    padding: 0.5rem 1rem;
+    background: none;
+  }
+  .navbar-robosteam .nav-link-scoreboard:hover {
+    background: none;
+    color: #fff;
+  }
+}

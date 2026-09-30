@@ -1,0 +1,127 @@
+{% extends "contest/organise/base_organise.html" %}
+{% block title %}<title>Readiness — {{ contest.name }}</title>{% endblock %}
+{% block page_title %}Readiness — {{ contest.name }}{% endblock %}
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'contest:organise_dashboard' %}">Organiser</a></li>
+  <li class="breadcrumb-item">
+    <a href="{% url 'contest:organise_contest' contest.id %}">{{ contest.name }}</a></li>
+  <li class="breadcrumb-item active">Readiness</li>
+{% endblock %}
+
+{% block content %}
+<style>
+  .ok-row   { color:#2fbf71; }
+  .bad-row  { color:#e2564a; }
+  .mac { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.78rem; color:#8a97a8; }
+</style>
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-warning{% else %}alert-info{% endif %} py-2"
+       style="font-size:14px;">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+{% if ready %}
+<div class="alert alert-success py-2" style="font-size:14px;">
+  Everything is ready — every timed category has an approved timer online, and every
+  team has a robot that is answering.
+</div>
+{% else %}
+<div class="alert alert-warning py-2" style="font-size:14px;">
+  Some hardware is not ready. Anything listed in red will fail during a heat, not before it.
+</div>
+{% endif %}
+
+<h5 style="font-family:'Poppins',sans-serif;margin:1.5rem 0 .75rem;">Categories</h5>
+<div style="overflow-x:auto;">
+<table class="table">
+  <thead><tr><th>Category</th><th>Type</th><th>Lap timer</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td>{{ row.category.name }}</td>
+      <td>{{ row.category.get_competition_type_display }}</td>
+      <td>
+        {% if row.timer %}{{ row.timer.friendly_name }}
+          <div class="mac">{{ row.timer.device_id }}</div>
+        {% elif row.is_timed %}<span class="bad-row">none</span>
+        {% else %}<span style="color:#aab;">not needed</span>{% endif %}
+      </td>
+      <td>
+        {% if row.problems %}
+          {% for problem in row.problems %}
+          <div class="bad-row">{{ problem }}</div>
+          {% endfor %}
+        {% else %}
+          <span class="ok-row">Ready</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4" style="color:#6b7a8d;">No categories yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h5 style="font-family:'Poppins',sans-serif;margin:2rem 0 .75rem;">Teams and robots</h5>
+<p style="color:#6b7a8d;font-size:.85rem;margin-bottom:1rem;">
+  Teams normally set their own robot from <em>My Robots</em>. Use the override here only
+  when they cannot — a robot swapped at the table, or a team with no participant account.
+  Overrides are recorded.
+</p>
+
+<div style="overflow-x:auto;">
+<table class="table">
+  <thead><tr><th>Team</th><th>Robot</th><th>Status</th><th>Override</th></tr></thead>
+  <tbody>
+  {% for row in team_rows %}
+    <tr>
+      <td>
+        {{ row.team.name }}
+        {% if row.team.robot_assigned_by %}
+        <div class="mac">set by {{ row.team.robot_assigned_by.username }}
+          {{ row.team.robot_assigned_at|date:"d M H:i" }}</div>
+        {% endif %}
+      </td>
+      <td>
+        {% if row.robot %}{{ row.robot.friendly_name }}
+          <div class="mac">{{ row.robot.device_id }}</div>
+        {% else %}<span style="color:#aab;">—</span>{% endif %}
+      </td>
+      <td>
+        {% if row.problem %}<span class="bad-row">{{ row.problem }}</span>
+        {% else %}<span class="ok-row">Ready</span>{% endif %}
+      </td>
+      <td>
+        <form method="post" action="{% url 'contest:organise_team_robot' row.team.id %}"
+              class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="next"
+                 value="{% url 'contest:organise_readiness' contest.id %}">
+          <select name="robot" class="form-select form-select-sm" style="max-width:14rem;">
+            <option value="">— none —</option>
+            {% for robot in all_robots %}
+            <option value="{{ robot.id }}"
+                    {% if row.team.robot_id == robot.id %}selected{% endif %}>
+              {{ robot.friendly_name }}
+            </option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-sm btn-outline-secondary">Set</button>
+        </form>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4" style="color:#6b7a8d;">No teams registered yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div style="margin-top:2rem;">
+  <a href="{% url 'contest:organise_contest' contest.id %}"
+     style="font-size:.85rem;color:#6b7a8d;">← Back to {{ contest.name }}</a>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "contest/base_site.html" %}
+{% block page_content %}
+
+<div class="page-header-organise">
+  <div class="container-xl">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'contest:index' %}">Competitions</a></li>
+        {% block breadcrumb %}
+        <li class="breadcrumb-item active">Organiser</li>
+        {% endblock %}
+      </ol>
+    </nav>
+    <h1 class="page-header-title">{% block page_title %}Organiser{% endblock %}</h1>
+    {% block page_subtitle %}{% endblock %}
+  </div>
+</div>
+
+<div class="container-xl pb-5">
+  {% block content %}{% endblock %}
+</div>
+
+{% endblock %}

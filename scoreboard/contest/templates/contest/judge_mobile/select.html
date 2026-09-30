@@ -1,0 +1,45 @@
+{% extends "contest/judge_mobile/base.html" %}
+{% load static %}
+{% block title %}<title>Select Track — RoboSTEAM Judge</title>{% endblock %}
+{% block body %}
+<div class="jm-topbar">
+  <img src="{% static 'contest/img/robostem-academy.png' %}" alt="RoboSTEAM" height="36">
+  <div>
+    <div class="jm-track-name">Select Track</div>
+    <div class="jm-competition-name">RoboSTEAM Academy</div>
+  </div>
+</div>
+
+<div class="jm-select-list">
+  {% for cat in categories %}
+  <a href="{% url 'contest:judge_panel' cat.id %}" class="jm-category-card">
+    <div>
+      <div class="jm-category-card-name">{{ cat.name }}</div>
+      <div class="jm-category-card-meta">
+        {{ cat.contest.name }} &bull;
+        {% if cat.competition_type == 'TIMED' %}Timed{% else %}Judged{% endif %}
+        &bull; {{ cat.num_runs }} run{% if cat.num_runs != 1 %}s{% endif %}
+      </div>
+    </div>
+    <span class="jm-category-arrow">&#8250;</span>
+  </a>
+  {% empty %}
+  <div style="text-align:center;padding:3rem 1rem;color:var(--jm-muted);">
+    <div style="font-size:2rem;margin-bottom:0.75rem;">&#8987;</div>
+    <div>No active categories right now.</div>
+    <div style="font-size:0.85rem;margin-top:0.5rem;">Ask the organiser to open a competition.</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if request.user.is_authenticated %}
+<div style="text-align:center;padding:1rem;border-top:1px solid rgba(255,255,255,0.07);margin-top:auto;">
+  <span style="font-size:0.8rem;color:var(--jm-muted);">{{ request.user.get_full_name|default:request.user.username }}</span>
+  &nbsp;&middot;&nbsp;
+  <form method="post" action="{% url 'logout' %}" style="display:inline;margin:0;">
+    {% csrf_token %}
+    <button type="submit" style="background:none;border:none;padding:0;font-size:0.8rem;color:var(--jm-muted);cursor:pointer;text-decoration:underline;">Logout</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

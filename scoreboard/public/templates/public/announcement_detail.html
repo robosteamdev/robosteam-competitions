@@ -1,0 +1,37 @@
+{% extends "public/base.html" %}
+{% block title %}<title>{{ announcement.title }} — RoboSTEAM Academy</title>{% endblock %}
+{% block public_content %}
+<div class="container-xl py-5" style="max-width:860px;">
+  <a href="/contests/upcoming/" class="text-teal" style="font-size:14px;">&larr; Upcoming Contests</a>
+  <div class="mt-3 mb-4">
+    <div class="announcement-date mb-1">{{ announcement.event_date|date:"d F Y" }}</div>
+    <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2rem;line-height:1.2;">{{ announcement.title }}</h1>
+    <p style="font-size:15px;color:#8aabb6;margin-bottom:0.35rem;">&#128205; {{ announcement.location }}</p>
+    {% if announcement.registration_deadline %}
+      <p style="font-size:13px;color:#f5a623;font-weight:600;">
+        &#128197; Registration deadline: {{ announcement.registration_deadline|date:"d M Y" }}
+      </p>
+    {% endif %}
+  </div>
+
+  <div class="about-section mb-4">
+    <p style="font-size:16px;margin:0;">{{ announcement.short_description }}</p>
+  </div>
+
+  {% if announcement.full_description %}
+  <div class="about-section">
+    <div style="font-size:16px;line-height:1.75;">
+      {{ announcement.full_description|safe }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if announcement.registration_link %}
+  <div class="mt-4">
+    <a href="{{ announcement.registration_link }}" class="btn btn-gold-fill px-4" target="_blank">
+      Register Now &rarr;
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

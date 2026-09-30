@@ -1,0 +1,12 @@
+{% extends "public/base.html" %}
+{% block title %}<title>{{ page.title }} — RoboSTEAM Academy</title>{% endblock %}
+{% block public_content %}
+<div class="container-xl py-5" style="max-width:900px;">
+  <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2rem;margin-bottom:1.5rem;">{{ page.title }}</h1>
+  <div class="about-section">
+    <div style="font-size:16px;line-height:1.8;">
+      {{ page.body|safe }}
+    </div>
+  </div>
+</div>
+{% endblock %}

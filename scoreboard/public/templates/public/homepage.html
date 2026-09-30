@@ -1,0 +1,161 @@
+{% extends "public/base.html" %}
+{% load static %}
+{% block title %}<title>RoboSTEAM Academy — International Robotics Competitions</title>{% endblock %}
+{% block public_content %}
+
+<!-- ===== HERO ===== -->
+<section class="hero-section">
+  <div class="container-xl">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <h1 class="hero-heading">RoboSTEAM<br>Competitions</h1>
+        <p class="hero-subheading">
+          Erasmus+ KA220-VET &mdash; International Robotics Competitions<br>
+          for STEM Education across Europe
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="/contests/upcoming/" class="btn btn-gold-fill px-4 py-2">View Upcoming Contests</a>
+          <a href="{% url 'contest:index' %}" class="btn btn-outline-teal px-4 py-2">Competition Scoreboard</a>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <img src="/media/uploads/hero-robot.png"
+             alt="RoboSTEAM competition robot"
+             style="width:100%;border-radius:16px;object-fit:cover;max-height:400px;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== UPCOMING ANNOUNCEMENTS ===== -->
+{% if announcements %}
+<section class="py-5" style="background:#0f1728;">
+  <div class="container-xl">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="section-title mb-0" style="color:#e8f4f7;">Upcoming Events</h2>
+      <a href="/contests/upcoming/" class="text-teal fw-semibold" style="font-size:14px;">View All &rarr;</a>
+    </div>
+    <div class="row g-3">
+      {% for ann in announcements %}
+      <div class="col-md-6 col-lg-4">
+        <a href="/contests/upcoming/{{ ann.pk }}/" style="text-decoration:none;color:inherit;display:block;">
+          <div class="announcement-card h-100" style="background:rgba(45,143,165,0.12);border-left:4px solid var(--gold);">
+            <div class="announcement-date mb-1">{{ ann.event_date|date:"d M Y" }}</div>
+            <h5 style="font-family:'Poppins',sans-serif;font-weight:700;color:#e8f4f7;margin-bottom:0.35rem;">{{ ann.title }}</h5>
+            <p style="font-size:13px;color:#8aabb6;margin-bottom:0.35rem;">&#128205; {{ ann.location }}</p>
+            <p style="font-size:14px;color:#a8c8d4;margin:0;">{{ ann.short_description }}</p>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ===== LATEST NEWS ===== -->
+<section class="py-5" style="background:#111e35;">
+  <div class="container-xl">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="section-title mb-0" style="color:#e8f4f7;">Latest News</h2>
+      <a href="/news/" class="text-teal fw-semibold" style="font-size:14px;">All News &rarr;</a>
+    </div>
+    {% if news_posts %}
+    <div class="row g-4">
+      {% for post in news_posts %}
+      <div class="col-md-6 col-lg-4">
+        <a href="/news/{{ post.slug }}/" style="text-decoration:none;color:inherit;display:block;height:100%;">
+          <div class="card-robo" style="background:#172440;">
+            {% if post.cover_image %}
+              <img src="{{ post.cover_image.url }}" class="card-cover" alt="{{ post.title }}">
+            {% else %}
+              <div class="card-cover-placeholder">
+                <span style="font-size:1.5rem;">📰</span>
+              </div>
+            {% endif %}
+            <div class="p-4">
+              <p style="font-size:12px;color:#8aabb6;margin-bottom:0.4rem;">{{ post.published_at|date:"d M Y" }}</p>
+              <h5 style="font-family:'Poppins',sans-serif;font-weight:700;color:#e8f4f7;margin-bottom:0.5rem;">{{ post.title }}</h5>
+              {% if post.excerpt %}
+                <p style="font-size:14px;color:#a8c8d4;margin:0;">{{ post.excerpt }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:#8aabb6;">No news yet. Check back soon.</p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ===== ABOUT THE PROJECT ===== -->
+<section class="py-5" style="background:#0f1728;">
+  <div class="container-xl">
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-7">
+        <div class="about-section">
+          <h2 class="section-title">About the Project</h2>
+          <p>
+            <strong>ROBO STEAM ACADEMY</strong> is an Erasmus+ KA220-VET project (Grant KA220-VET-7CF4F308) bringing together
+            partner institutions from Bulgaria, Slovakia, and Romania to advance robotics and STEM education in
+            vocational training.
+          </p>
+          <p>
+            The competition platform enables students to build, program, and test autonomous robots in structured
+            challenges. Using Raspberry Pi Pico W microcontrollers and our open-source MicroPython competition
+            library, teams compete in categories ranging from automated lap timing to judged object manipulation tasks.
+          </p>
+          <p>
+            The project runs from October 2024 to September 2027 with a total budget of &euro;400,000 and
+            is developed as part of WP3 &mdash; Advanced Robo STEM Games and Jury.
+          </p>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <a href="/pages/what-is-a-competition/" class="btn btn-outline-teal btn-sm">What is a Competition?</a>
+            <a href="/pages/participate/" class="btn btn-outline-teal btn-sm">How to Participate</a>
+            <a href="/pages/organize/" class="btn btn-outline-teal btn-sm">How to Organize</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="text-center">
+          <img src="{% static 'contest/img/erasmus-logo.png' %}" alt="Erasmus+" style="height:120px;max-width:100%;">
+          <p style="font-size:12px;color:#8aabb6;margin-top:1rem;">
+            Co-funded by the Erasmus+ Programme of the European Union
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARTNERS ===== -->
+<section class="py-5" style="background:#0a1120;">
+  <div class="container-xl text-center">
+    <h2 class="section-title mb-4" style="text-align:center;">Our Partners</h2>
+    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
+      <a href="https://www.iict.bas.bg/EN/index.html" target="_blank">
+        <img src="/media/uploads/partner-iict.png" alt="IICT" style="height:60px;filter:brightness(1.2);">
+      </a>
+      <a href="https://spseadlerka.edupage.org/" target="_blank">
+        <img src="/media/uploads/partner-adlerka.png" alt="SPSE Adlerka" style="height:60px;filter:brightness(1.2);">
+      </a>
+      <a href="https://www.cezar-nicolau.ro/" target="_blank">
+        <img src="/media/uploads/partner-ltcn.png" alt="LTCN" style="height:60px;filter:brightness(1.2);">
+      </a>
+      <a href="https://anbpr.org.ro/" target="_blank">
+        <img src="/media/uploads/partner-anbpr.png" alt="ANBPR" style="height:60px;filter:brightness(1.2);">
+      </a>
+      <a href="https://tuke.sk/sk" target="_blank">
+        <img src="/media/uploads/partner-tuke.png" alt="TUKE" style="height:60px;filter:brightness(1.2);">
+      </a>
+      <a href="https://ant.bg/" target="_blank">
+        <img src="/media/uploads/partner-ant.png" alt="ANT" style="height:60px;filter:brightness(1.2);">
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

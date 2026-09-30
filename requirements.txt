@@ -1,0 +1,61 @@
+# RoboACADEMY competitions — pinned to the versions actually running on the dev VM
+# (`pip freeze` in ~/venv, 2026-07-29). Phase G2 / finding H8: unpinned requirements
+# meant a rebuild could silently install a different Django or channels.
+#
+#   python -m venv venv && venv/bin/pip install -r requirements.txt
+#
+# Bump deliberately: change a version here, reinstall, run the full suite.
+
+# ── Framework ────────────────────────────────────────────────────────────────
+Django==6.0.6
+django-environ==0.14.0
+sqlparse==0.5.5
+asgiref==3.11.1
+typing_extensions==4.15.0
+
+# ── ASGI / WebSockets (Daphne + Channels + Redis channel layer) ──────────────
+daphne==4.2.2
+channels==4.2.2
+channels_redis==4.3.0
+redis==8.0.1
+websockets==12.0
+msgpack==1.2.1
+Twisted[tls,http2]==26.4.0
+autobahn==26.6.2
+Automat==25.4.16
+constantly==23.10.4
+hyperlink==21.0.0
+Incremental==24.11.0
+txaio==26.6.1
+zope.interface==8.5
+h2==4.3.0
+hpack==4.2.0
+hyperframe==6.1.0
+priority==1.3.0
+pyOpenSSL==26.3.0
+cryptography==49.0.0
+service-identity==26.1.0
+cffi==2.0.0
+pycparser==3.0
+attrs==26.1.0
+cbor2==6.1.2
+idna==3.18
+ujson==5.13.0
+
+# ── MQTT ─────────────────────────────────────────────────────────────────────
+paho-mqtt==2.1.0
+
+# ── Content editing / uploads (public app) ───────────────────────────────────
+django-ckeditor==6.7.1
+django-js-asset==4.0.1
+pillow==12.2.0
+
+# ── Chained-dropdown widgets in the contest admin ────────────────────────────
+django-smart-selects==1.7.2
+
+packaging==26.2
+
+# ── Optional: MySQL ──────────────────────────────────────────────────────────
+# Dev and the test suite run on SQLite (DATABASE_URL in .env). Uncomment for a
+# MySQL deployment; it needs libmysqlclient-dev + a compiler on the host.
+# mysqlclient==2.2.7

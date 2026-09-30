@@ -1,0 +1,37 @@
+[Unit]
+Description=RoboSTEAM Competitions — Daphne ASGI server
+Documentation=https://github.com/robosteamdev/robosteam-competitions
+# Redis carries the channel layer that mqtt_bridge and timeout_runs push through.
+# Without it the board never updates (finding C2).
+After=network-online.target redis-server.service
+Wants=network-online.target
+Requires=redis-server.service
+# Never stop retrying. A competition runs for hours; the default rate limit
+# gives up after 5 restarts in 10s and would leave the event dead.
+# NOTE: this key lives in [Unit] — systemd silently IGNORES it in [Service].
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dev
+Group=dev
+WorkingDirectory=/opt/robosteam-competitions/scoreboard
+
+# Daphne, not `manage.py runserver`. runserver is Django's development server:
+# it auto-reloads, it is single-worker, and it is explicitly not for production.
+ExecStart=/opt/robosteam-competitions/venv/bin/daphne -b 0.0.0.0 -p 8000 scoreboard.asgi:application
+
+Restart=on-failure
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=robosteam-web
+
+# Modest hardening. The app needs to write db.sqlite3, its WAL files, and
+# uploaded media under the project directory, so ProtectHome is off.
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

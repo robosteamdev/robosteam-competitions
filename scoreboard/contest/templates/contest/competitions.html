@@ -1,0 +1,107 @@
+{% extends "contest/base.html" %}
+{% block title %}<title>{{ contest.name }} — RoboSTEAM Academy</title>{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <h2 class="mb-0" style="font-family:'Poppins',sans-serif;font-weight:700;">{{ contest.name }}</h2>
+    {% if contest.description %}
+      <p class="text-muted mb-0 mt-1">{{ contest.description }}</p>
+    {% endif %}
+  </div>
+  <a href="{% url 'contest:contest_ranking' contest.id %}" class="btn btn-outline-teal btn-sm px-3">
+    View Overall Ranking &rarr;
+  </a>
+</div>
+
+<!-- Results cross-table -->
+<div class="card-robo mb-4" style="overflow-x:auto;">
+  <div style="min-width:480px;">
+    <table class="table table-hover mb-0 competition-table">
+      <thead>
+        <tr>
+          <th style="min-width:140px;">Team</th>
+          {% for competition in competitions %}
+          <th>
+            <a href="{% url 'contest:competition_board' competition.id %}" style="color:#fff;text-decoration:none;">
+              {{ competition.name }}
+            </a>
+            <br>
+            <span class="badge-{{ competition.competition_type|lower }} badge" style="font-size:10px;font-weight:600;margin-top:3px;">
+              {{ competition.get_competition_type_display|default:competition.competition_type }}
+            </span>
+            {% if competition.status == 'OPEN' %}
+              <span class="badge bg-success" style="font-size:10px;">Open</span>
+            {% else %}
+              <span class="badge bg-secondary" style="font-size:10px;">{{ competition.status }}</span>
+            {% endif %}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in table %}
+        <tr>
+          <td><a href="{% url 'contest:contest_team' line.team.id %}">{{ line.team.name }}</a></td>
+          {% for item in line.results %}
+          <td>
+            {% if item is not None %}
+              <span class="text-teal fw-semibold">{{ item }}</span>
+            {% else %}
+              <span class="text-muted">&mdash;</span>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Category cards -->
+<h4 class="section-title">Categories</h4>
+<div class="row g-3">
+  {% for competition in competitions %}
+  <div class="col-md-6 col-lg-4">
+    <div class="contest-card">
+      <div class="d-flex align-items-start justify-content-between mb-2">
+        <h5 class="mb-0">{{ competition.name }}</h5>
+        {% if competition.competition_type == 'TIMED' %}
+          <span class="badge badge-timed ms-2">Timed</span>
+        {% else %}
+          <span class="badge badge-judged ms-2">Judged</span>
+        {% endif %}
+      </div>
+      <div style="font-size:13px;color:#6b7a8d;margin-bottom:0.75rem;">
+        {% if competition.competition_type == 'TIMED' %}
+          {{ competition.num_laps }} lap{% if competition.num_laps != 1 %}s{% endif %} &bull;
+          {{ competition.timeout_seconds }}s timeout
+          {% if competition.lap_timer %}
+            &bull; Timer: {{ competition.lap_timer.friendly_name }}
+          {% else %}
+            &bull; <em>No timer assigned</em>
+          {% endif %}
+        {% endif %}
+        &bull; Max {{ competition.num_runs }} run{% if competition.num_runs != 1 %}s{% endif %}
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        {% if competition.status == 'OPEN' %}
+          <span class="badge bg-success">Open</span>
+        {% elif competition.status == 'CLOSED' %}
+          <span class="badge bg-secondary">Closed</span>
+        {% else %}
+          <span class="badge bg-warning text-dark">{{ competition.status }}</span>
+        {% endif %}
+        <a href="{% url 'contest:competition_board' competition.id %}" class="btn btn-sm btn-primary-teal ms-auto">Open Board &rarr;</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <p class="text-muted">No categories yet.</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

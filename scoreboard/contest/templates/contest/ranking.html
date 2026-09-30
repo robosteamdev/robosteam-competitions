@@ -1,0 +1,80 @@
+{% extends "contest/base.html" %}
+{% block title %}<title>{{ contest.name }} — Overall Ranking — RoboSTEAM Academy</title>{% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <h2 style="font-family:'Poppins',sans-serif;font-weight:700;">Overall Ranking</h2>
+  <p class="text-muted mb-0">{{ contest.name }}</p>
+</div>
+
+<!-- Podium (top 3) -->
+{% with eligible=overall_results|slice:":3" %}
+{% if eligible %}
+<div class="row g-3 mb-4 justify-content-center">
+  {% for result in eligible %}
+  {% if result.is_eligible %}
+    <div class="col-md-4 col-sm-6">
+      <div class="podium-card {% if result.rank == 1 %}podium-1{% elif result.rank == 2 %}podium-2{% elif result.rank == 3 %}podium-3{% endif %}">
+        <div class="podium-rank">
+          {% if result.rank == 1 %}&#127941;{% elif result.rank == 2 %}&#129352;{% elif result.rank == 3 %}&#129353;{% endif %}
+          {{ result.rank }}
+        </div>
+        <div class="podium-team">{{ result.team.name }}</div>
+        <div class="podium-pts">{{ result.total_points }} pts</div>
+      </div>
+    </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<!-- Full ranking table -->
+<div class="card-robo">
+  <table class="table mb-0 competition-table">
+    <thead>
+      <tr>
+        <th style="width:60px;">Rank</th>
+        <th>Team</th>
+        <th>Points</th>
+        <th>Eligible</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in overall_results %}
+      <tr>
+        <td class="fw-bold">
+          {% if result.rank %}{{ result.rank }}{% else %}&mdash;{% endif %}
+        </td>
+        <td>
+          <a href="{% url 'contest:contest_team' result.team.id %}">{{ result.team.name }}</a>
+        </td>
+        <td>
+          <span class="badge-teal badge">{{ result.total_points }} pts</span>
+        </td>
+        <td>
+          {% if result.is_eligible %}
+            <span class="badge badge-state-completed">Yes</span>
+          {% else %}
+            <span class="badge badge-state-voided" title="Missing result in at least one category">No</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center text-muted py-3">
+          No results yet. Scores will appear here as categories are completed.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-3">
+  <a href="{% url 'contest:contest_competitions' contest.id %}" class="text-teal">
+    &larr; Back to categories
+  </a>
+</div>
+
+{% endblock %}

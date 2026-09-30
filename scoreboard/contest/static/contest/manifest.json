@@ -1,0 +1,17 @@
+{
+  "name": "RoboSTEAM Judge",
+  "short_name": "Judge",
+  "description": "RoboSTEAM Academy — Field Judge Interface",
+  "start_url": "/judge/",
+  "display": "standalone",
+  "background_color": "#0f1728",
+  "theme_color": "#0f1728",
+  "icons": [
+    {
+      "src": "/static/contest/img/robostem-academy.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

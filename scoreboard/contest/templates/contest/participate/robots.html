@@ -1,0 +1,302 @@
+{% extends "contest/base_site.html" %}
+{% load static %}
+{% block title %}<title>My Robots — RoboSTEAM Academy</title>{% endblock %}
+
+{% block extra_css %}
+<style>
+  .robot-card { position: relative; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px;
+         vertical-align:middle; }
+  .dot-online  { background:#2fbf71; box-shadow:0 0 0 3px rgba(47,191,113,.18); }
+  .dot-offline { background:#c2ccd8; }
+  .dot-error   { background:#e2564a; box-shadow:0 0 0 3px rgba(226,86,74,.18); }
+  .robot-mac { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.8rem;
+               color:#8a97a8; letter-spacing:.03em; }
+  .robot-meta { font-size:.78rem; color:#8a97a8; }
+  .inline-form { display:inline; }
+</style>
+{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header-organise">
+  <div class="container-xl">
+    <h1 class="page-header-title">My Robots</h1>
+    <div class="page-header-sub">Participant · {{ request.user.username }}</div>
+  </div>
+</div>
+
+<div class="container-xl pb-5">
+
+  {% if messages %}
+  <div class="pt-4">
+    {% for message in messages %}
+    <div class="alert {% if message.tags == 'error' %}alert-warning{% else %}alert-info{% endif %} py-2"
+         style="font-size:14px;">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {# ── Claim a robot ── #}
+  <div class="contest-card mt-4 mb-5">
+    <h5 style="margin:0 0 .35rem;">Add a robot</h5>
+    <p style="color:#6b7a8d;font-size:.88rem;margin-bottom:1rem;">
+      Power your robot up and let it connect to the competition WiFi. Then enter the
+      MAC address printed on it (or shown on its setup page) to add it to your account.
+    </p>
+    <form method="post" action="{% url 'contest:robot_claim' %}" class="row g-2 align-items-center">
+      {% csrf_token %}
+      <div class="col-sm-6 col-md-5">
+        <input type="text" name="mac" class="form-control" placeholder="AA:BB:CC:DD:EE:01"
+               autocomplete="off" spellcheck="false" required>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary-teal btn-sm">Add robot</button>
+      </div>
+    </form>
+  </div>
+
+  {# ── My robots ── #}
+  <h5 style="font-family:'Poppins',sans-serif;margin-bottom:1rem;">My robots</h5>
+
+  {% if my_robots %}
+  <div class="row g-3 mb-5">
+    {% for robot in my_robots %}
+    <div class="col-md-6">
+      <div class="contest-card robot-card h-100" data-device-id="{{ robot.device_id }}">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h5 style="margin:0 0 .2rem;">{{ robot.friendly_name }}</h5>
+            <div class="robot-mac">{{ robot.device_id }}</div>
+          </div>
+          <span class="device-status" data-status="{{ robot.status }}">
+            {% if robot.status == 'ONLINE' %}
+              <span class="dot dot-online"></span><small style="color:#2fbf71;">Online</small>
+            {% elif robot.status == 'ERROR' %}
+              <span class="dot dot-error"></span><small style="color:#e2564a;">Error</small>
+            {% else %}
+              <span class="dot dot-offline"></span><small style="color:#8a97a8;">Offline</small>
+            {% endif %}
+          </span>
+        </div>
+
+        <div class="robot-meta mt-2">
+          {% if robot.last_seen %}
+            Last heard from {{ robot.last_seen|timesince }} ago
+          {% else %}
+            Never connected
+          {% endif %}
+          {% if robot.firmware_version %} · firmware {{ robot.firmware_version }}{% endif %}
+        </div>
+
+        <div class="mt-3 d-flex gap-2 flex-wrap align-items-center">
+          <form method="post" action="{% url 'contest:robot_rename' robot.id %}"
+                class="d-flex gap-2 flex-grow-1">
+            {% csrf_token %}
+            <input type="text" name="friendly_name" value="{{ robot.friendly_name }}"
+                   class="form-control form-control-sm" maxlength="100" style="max-width:15rem;">
+            <button type="submit" class="btn btn-sm btn-outline-teal">Rename</button>
+          </form>
+          <button type="button" class="btn btn-sm btn-outline-teal js-test"
+                  data-test-url="{% url 'contest:robot_test' robot.id %}"
+                  data-status-url="{% url 'contest:robot_status' robot.id %}">
+            Test connection
+          </button>
+          <form method="post" action="{% url 'contest:robot_release' robot.id %}"
+                class="inline-form"
+                onsubmit="return confirm('Release {{ robot.friendly_name }}? It will be removed from your teams and anyone will be able to add it.')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-action-danger">Release</button>
+          </form>
+        </div>
+
+        <div class="test-result robot-meta mt-2" hidden></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#6b7a8d;margin-bottom:2.5rem;">
+    You haven't added a robot yet. Add one above to use it in a competition.
+  </p>
+  {% endif %}
+
+  {# ── Which robot competes where ── #}
+  <h5 style="font-family:'Poppins',sans-serif;margin-bottom:1rem;">Robot for each competition</h5>
+
+  {% if my_regs %}
+  <div class="row g-3">
+    {% for reg in my_regs %}
+    <div class="col-md-6">
+      <div class="contest-card h-100">
+        <h5 style="margin:0 0 .25rem;">{{ reg.contest.name }}</h5>
+        <small style="color:#6b7a8d;">Team: {{ reg.team.name }}</small>
+
+        <form method="post" action="{% url 'contest:robot_bind' reg.contest.id %}"
+              class="d-flex gap-2 mt-3">
+          {% csrf_token %}
+          <select name="robot" class="form-select form-select-sm">
+            <option value="">— no robot —</option>
+            {% for robot in my_robots %}
+            <option value="{{ robot.id }}"
+                    {% if reg.team.robot_id == robot.id %}selected{% endif %}>
+              {{ robot.friendly_name }}
+            </option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-sm btn-primary-teal">Save</button>
+        </form>
+
+        {% if not reg.team.robot %}
+        <div class="robot-meta mt-2">
+          No robot set — the judge will start your run without one.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#6b7a8d;">
+    You haven't joined a competition yet.
+    <a href="{% url 'contest:participate_dashboard' %}">Find one to join</a>.
+  </p>
+  {% endif %}
+
+  <div style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid #dde3ec;">
+    <a href="{% url 'contest:participate_dashboard' %}" style="font-size:.85rem;color:#6b7a8d;">
+      ← Back to My Competitions
+    </a>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+  csrf = csrf ? csrf.value : '';
+
+  function cardFor(deviceId) {
+    return document.querySelector('[data-device-id="' + deviceId + '"]');
+  }
+
+  function paintStatus(card, status) {
+    var el = card.querySelector('.device-status');
+    if (!el) { return; }
+    var map = {
+      ONLINE:  ['dot-online',  '#2fbf71', 'Online'],
+      ERROR:   ['dot-error',   '#e2564a', 'Error'],
+      OFFLINE: ['dot-offline', '#8a97a8', 'Offline']
+    };
+    var s = map[status] || map.OFFLINE;
+    el.dataset.status = status;
+    el.innerHTML = '<span class="dot ' + s[0] + '"></span>' +
+                   '<small style="color:' + s[1] + ';">' + s[2] + '</small>';
+  }
+
+  function humanAge(seconds) {
+    if (seconds === null || seconds === undefined) { return 'never'; }
+    if (seconds < 60) { return seconds + ' s ago'; }
+    if (seconds < 3600) { return Math.round(seconds / 60) + ' min ago'; }
+    return Math.round(seconds / 3600) + ' h ago';
+  }
+
+  // ── live badges ────────────────────────────────────────────────────────────
+  // Reconnecting matters more than it looks: a student leaves this page open
+  // while power-cycling a robot, which is exactly when the socket drops.
+  var pending = {};   // device_id -> {resolve, timer, box}
+  var ws, retry = 1000;
+
+  function connect() {
+    var scheme = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(scheme + '://' + location.host + '/ws/devices/');
+
+    ws.onopen = function () { retry = 1000; };
+
+    ws.onmessage = function (ev) {
+      var d = JSON.parse(ev.data);
+      var card = cardFor(d.device_id);
+      if (!card) { return; }               // not one of my robots
+      paintStatus(card, d.status);
+
+      var waiting = pending[d.device_id];
+      if (waiting && d.rtt_ms !== undefined && d.rtt_ms !== null) {
+        clearTimeout(waiting.timer);
+        delete pending[d.device_id];
+        show(waiting.box, '✓ Replied in ' + d.rtt_ms + ' ms — the robot is listening.', '#2fbf71');
+      }
+    };
+
+    ws.onclose = function () {
+      retry = Math.min(retry * 2, 30000);
+      setTimeout(connect, retry);
+    };
+  }
+  connect();
+
+  function show(box, text, colour) {
+    box.hidden = false;
+    box.textContent = text;
+    box.style.color = colour || '#8a97a8';
+  }
+
+  // ── connection test ────────────────────────────────────────────────────────
+  document.querySelectorAll('.js-test').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var card = btn.closest('[data-device-id]');
+      var id   = card.dataset.deviceId;
+      var box  = card.querySelector('.test-result');
+
+      btn.disabled = true;
+      show(box, 'Testing…', '#8a97a8');
+
+      fetch(btn.dataset.testUrl, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrf},
+        credentials: 'same-origin'
+      })
+      .then(function (r) { return r.json().then(function (j) { return {ok: r.ok, body: j}; }); })
+      .then(function (res) {
+        if (!res.ok) {
+          btn.disabled = false;
+          show(box, res.body.error || 'Could not send the test.', '#e2564a');
+          return;
+        }
+        var timer = setTimeout(function () {
+          // No PONG. Firmware without a PING handler never answers, so this is
+          // the normal path for a robot that has not been reflashed — report
+          // what we do know rather than calling it a failure.
+          delete pending[id];
+          fetch(btn.dataset.statusUrl, {credentials: 'same-origin'})
+            .then(function (r) { return r.json(); })
+            .then(function (s) {
+              btn.disabled = false;
+              paintStatus(card, s.status);
+              if (s.status === 'ONLINE') {
+                show(box, 'No reply to the test, but the robot was heard from ' +
+                          humanAge(s.seconds_since_seen) +
+                          '. Its firmware may not answer tests yet.', '#c99a2e');
+              } else {
+                show(box, 'No reply, and nothing heard from it since ' +
+                          humanAge(s.seconds_since_seen) +
+                          '. Check power, WiFi and the broker address.', '#e2564a');
+              }
+            });
+        }, (res.body.timeout_seconds || 8) * 1000);
+
+        pending[id] = {timer: timer, box: box};
+        // Re-enable once the WS answer lands, too.
+        var poll = setInterval(function () {
+          if (!pending[id]) { btn.disabled = false; clearInterval(poll); }
+        }, 300);
+      })
+      .catch(function () {
+        btn.disabled = false;
+        show(box, 'Could not send the test — are you still online?', '#e2564a');
+      });
+    });
+  });
+})();
+</script>
+
+{% endblock %}

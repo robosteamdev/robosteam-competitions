@@ -1,0 +1,65 @@
+{% extends "contest/base_site.html" %}
+{% block title %}<title>Create Account — RoboSTEAM Academy</title>{% endblock %}
+{% block page_content %}
+<div style="background:#0f1728;min-height:calc(100vh - 200px);padding:2rem 1rem;">
+  <div class="login-card" style="max-width:520px;">
+    <div class="text-center mb-4">
+      {% load static %}
+      <img src="{% static 'contest/img/robostem-academy.png' %}" alt="RoboSTEAM Academy" height="52" class="mb-3">
+      <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#1a2332;">Request an Account</h4>
+      <p style="font-size:13px;color:#8aabb6;">Judges and Organisers require administrator approval. Participants can log in immediately.</p>
+    </div>
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger py-2" style="font-size:14px;">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        {% if field.name == 'team_name' %}
+        <div class="mb-3" id="team_name_row">
+          <label class="form-label fw-semibold" style="font-size:14px;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="text-danger small mt-1">{{ field.errors }}</div>
+          {% endif %}
+          <div class="form-text">{{ field.help_text }}</div>
+        </div>
+        {% elif field.name == 'consent' %}
+        <div class="mb-3 form-check">
+          {{ field }}
+          <label class="form-check-label" for="{{ field.id_for_label }}" style="font-size:13px;">
+            {{ field.label }} (<a href="/pages/privacy-policy/" target="_blank" class="text-teal">privacy policy</a>)
+          </label>
+          {% if field.errors %}
+            <div style="color:#dc3545;font-size:13px;">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold" style="font-size:14px;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div style="color:#dc3545;font-size:13px;">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+      <button type="submit" class="btn btn-primary-teal w-100 py-2">Submit Request</button>
+    </form>
+    <p class="text-center mt-3" style="font-size:13px;color:#8aabb6;">
+      Already have an account? <a href="{% url 'login' %}" class="text-teal">Sign in</a>
+    </p>
+  </div>
+</div>
+<script>
+(function() {
+  var roleEl  = document.getElementById('id_requested_role');
+  var teamRow = document.getElementById('team_name_row');
+  function toggle() {
+    teamRow.style.display = roleEl.value === 'participant' ? '' : 'none';
+  }
+  roleEl.addEventListener('change', toggle);
+  toggle();
+})();
+</script>
+{% endblock %}

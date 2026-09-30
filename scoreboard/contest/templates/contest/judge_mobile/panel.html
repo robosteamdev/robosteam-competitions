@@ -1,0 +1,145 @@
+{% extends "contest/judge_mobile/base.html" %}
+{% block title %}<title>{{ competition.name }} — RoboSTEAM Judge</title>{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="jm-topbar">
+  <a href="{% url 'contest:judge_select' %}" class="jm-back" aria-label="All tracks">&#8592;</a>
+  <div style="overflow:hidden;">
+    <div class="jm-track-name">{{ competition.name }}</div>
+    <div class="jm-competition-name">{{ competition.contest.name }}</div>
+  </div>
+</div>
+
+<div id="judge-state">
+  {% include "contest/judge_mobile/state_fragment.html" %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var compId   = {{ competition.id }};
+  var stateUrl = "{% url 'contest:judge_panel_state' competition.id %}";
+  var wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  var wsUrl    = wsScheme + '://' + window.location.host + '/ws/competition/' + compId + '/';
+  var _timerInterval = null;
+  var ws, retryDelay = 1000;
+
+  function getCsrf() {
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+  }
+
+  function refreshState() {
+    fetch(stateUrl)
+      .then(function(r) { return r.text(); })
+      .then(function(html) {
+        document.getElementById('judge-state').innerHTML = html;
+        initTimer();
+      });
+  }
+
+  function initTimer() {
+    if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+    var el = document.getElementById('jm-timer');
+    if (!el) return;
+    var start = new Date(el.dataset.start);
+    var isTimed = el.classList.contains('running');
+    function tick() {
+      var ms    = Date.now() - start.getTime();
+      var mins  = Math.floor(ms / 60000);
+      var secs  = Math.floor((ms % 60000) / 1000);
+      if (isTimed) {
+        var tenth = Math.floor((ms % 1000) / 100);
+        el.textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0') + '.' + tenth;
+      } else {
+        el.textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+      }
+    }
+    tick();
+    _timerInterval = setInterval(tick, isTimed ? 100 : 1000);
+  }
+
+  /* Expose action helpers to onclick handlers in state_fragment */
+  window.doCreate = function(competitionId, teamId) {
+    fetch('/contest/competition/' + competitionId + '/run/create', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'team_id=' + teamId,
+    }).then(refreshState).catch(refreshState);
+  };
+
+  /* Warn — never block — when the team's robot is offline. Offline detection
+     lags up to DEVICE_OFFLINE_SECONDS, so a gate here would stall a real heat
+     over a stale badge. Any pre-flight failure starts the run regardless. */
+  function robotPreflightOk(runId) {
+    return fetch('/contest/run/' + runId + '/preflight')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) {
+        if (!d || !d.warnings || d.warnings.length === 0) { return true; }
+        return confirm(d.warnings.join('\n\n') + '\n\nStart the run anyway?');
+      })
+      .catch(function() { return true; });
+  }
+
+  window.doStart = function(runId) {
+    robotPreflightOk(runId).then(function(ok) {
+      if (!ok) { return; }
+      fetch('/contest/run/' + runId + '/start', {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCsrf()},
+      }).then(refreshState).catch(refreshState);
+    });
+  };
+
+  window.doDiscard = function(runId) {
+    fetch('/contest/run/' + runId + '/discard', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrf()},
+    }).then(refreshState).catch(refreshState);
+  };
+
+  window.doPenalty = function(runId) {
+    var el  = document.getElementById('jm-penalty-input');
+    var raw = el ? el.value.trim() : '';
+    fetch('/contest/run/' + runId + '/penalty', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrf(), 'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'penalty_seconds=' + encodeURIComponent(raw === '' ? '0' : raw),
+    }).then(function(r) {
+      if (!r.ok) { r.json().then(function(d) { alert('Could not set penalty: ' + d.error); }); }
+      refreshState();
+    }).catch(refreshState);
+  };
+
+  window.doStop = function(runId) {
+    fetch('/contest/run/' + runId + '/stop', {
+      method: 'POST',
+      headers: {'X-CSRFToken': getCsrf()},
+    }).then(refreshState).catch(refreshState);
+  };
+
+  function connect() {
+    ws = new WebSocket(wsUrl);
+    ws.onmessage = function () { refreshState(); };
+    ws.onclose   = function () {
+      setTimeout(connect, retryDelay);
+      retryDelay = Math.min(retryDelay * 2, 30000);
+    };
+    ws.onopen    = function () { retryDelay = 1000; };
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initTimer();
+    connect();
+  });
+})();
+</script>
+{% endblock %}

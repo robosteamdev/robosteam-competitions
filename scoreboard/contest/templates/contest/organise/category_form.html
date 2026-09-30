@@ -1,0 +1,29 @@
+{% extends "contest/organise/base_organise.html" %}
+{% block title %}<title>{{ action }} Category — RoboSTEAM Academy</title>{% endblock %}
+{% block page_title %}{{ action }} Category{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'contest:organise_dashboard' %}">Organiser</a></li>
+<li class="breadcrumb-item active">Category</li>
+{% endblock %}
+{% block content %}
+<div style="max-width:560px;">
+  <a href="{% url 'contest:organise_contest' contest.id %}" style="font-size:13px;color:#6b7a8d;">&larr; Back to {{ contest.name }}</a>
+  <h2 style="font-family:'Poppins',sans-serif;font-weight:700;margin:0.5rem 0 1.5rem;">{{ action }} Category</h2>
+  <div class="form-card">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold" style="font-size:14px;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div style="color:#dc3545;font-size:13px;">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+      {% endfor %}
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary-teal">{{ action }}</button>
+        <a href="{% url 'contest:organise_contest' contest.id %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

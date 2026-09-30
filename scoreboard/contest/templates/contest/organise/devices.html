@@ -1,0 +1,160 @@
+{% extends "contest/organise/base_organise.html" %}
+{% block title %}<title>Devices — RoboSTEAM Academy</title>{% endblock %}
+{% block page_title %}Devices{% endblock %}
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{% url 'contest:organise_dashboard' %}">Organiser</a></li>
+  <li class="breadcrumb-item active">Devices</li>
+{% endblock %}
+
+{% block content %}
+<style>
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; }
+  .dot-online  { background:#2fbf71; box-shadow:0 0 0 3px rgba(47,191,113,.18); }
+  .dot-offline { background:#c2ccd8; }
+  .dot-error   { background:#e2564a; box-shadow:0 0 0 3px rgba(226,86,74,.18); }
+  .mac { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.78rem;
+         color:#8a97a8; }
+  .filter-pill { font-size:.8rem; padding:.25rem .7rem; border-radius:999px;
+                 border:1px solid #dde3ec; color:#4a5b70; text-decoration:none; }
+  .filter-pill.on { background:#2d8fa5; border-color:#2d8fa5; color:#fff; }
+  table.devices td, table.devices th { vertical-align:middle; font-size:.86rem; }
+</style>
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert {% if message.tags == 'error' %}alert-warning{% else %}alert-info{% endif %} py-2"
+       style="font-size:14px;">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+{% if pending_count %}
+<div class="alert alert-warning py-2" style="font-size:14px;">
+  <strong>{{ pending_count }}</strong> device{{ pending_count|pluralize }} awaiting approval.
+  A lap timer that is not approved records no times at all.
+</div>
+{% endif %}
+
+<div class="d-flex gap-2 flex-wrap mb-4">
+  <a href="{% url 'contest:organise_devices' %}"
+     class="filter-pill {% if not device_filter %}on{% endif %}">All</a>
+  <a href="?filter=pending"
+     class="filter-pill {% if device_filter == 'pending' %}on{% endif %}">Awaiting approval</a>
+  <a href="?filter=offline"
+     class="filter-pill {% if device_filter == 'offline' %}on{% endif %}">Offline</a>
+  <a href="?filter=robots"
+     class="filter-pill {% if device_filter == 'robots' %}on{% endif %}">Robots</a>
+  <a href="?filter=timers"
+     class="filter-pill {% if device_filter == 'timers' %}on{% endif %}">Lap timers</a>
+</div>
+
+<div style="overflow-x:auto;">
+<table class="table devices">
+  <thead>
+    <tr>
+      <th>Device</th><th>Type</th><th>Owner</th><th>Used by</th>
+      <th>Connection</th><th>Approval</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for device in devices %}
+    <tr data-device-id="{{ device.device_id }}">
+      <td>
+        <div>{{ device.friendly_name }}</div>
+        <div class="mac">{{ device.device_id }}</div>
+        {% if device.firmware_version %}
+        <div class="mac">fw {{ device.firmware_version }}</div>
+        {% endif %}
+      </td>
+      <td>{{ device.get_device_type_display }}</td>
+      <td>
+        {% if device.owner %}{{ device.owner.username }}
+        {% else %}<span style="color:#aab;">—</span>{% endif %}
+      </td>
+      <td>
+        {% for team in device.teams.all %}
+          <div>{{ team.name }} <span style="color:#aab;">· {{ team.contest.name }}</span></div>
+        {% empty %}
+          <span style="color:#aab;">—</span>
+        {% endfor %}
+      </td>
+      <td class="device-status" data-status="{{ device.status }}">
+        {% if device.status == 'ONLINE' %}
+          <span class="dot dot-online"></span>Online
+        {% elif device.status == 'ERROR' %}
+          <span class="dot dot-error"></span>Error
+        {% else %}
+          <span class="dot dot-offline"></span>Offline
+        {% endif %}
+        <div class="mac">
+          {% if device.last_seen %}{{ device.last_seen|timesince }} ago{% else %}never seen{% endif %}
+        </div>
+      </td>
+      <td>
+        {% if device.device_type == 'ROBOT' %}
+          <span style="color:#8a97a8;" title="Robots receive commands but never score, so they need no approval.">not required</span>
+        {% elif device.registration_status == 'ACTIVE' %}
+          <span class="badge-teal">Approved</span>
+        {% elif device.registration_status == 'PENDING' %}
+          <span style="color:#c99a2e;">Awaiting approval</span>
+        {% else %}
+          <span style="color:#e2564a;">Deactivated</span>
+        {% endif %}
+      </td>
+      <td class="text-end">
+        {% if device.device_type == 'LAPTIMER' %}
+        <form method="post" action="{% url 'contest:organise_device_approval' device.id %}"
+              style="display:inline;">
+          {% csrf_token %}
+          {% if device.registration_status == 'ACTIVE' %}
+            <button name="action" value="deactivate" class="btn btn-sm btn-outline-secondary">
+              Deactivate</button>
+          {% else %}
+            <button name="action" value="approve" class="btn btn-sm btn-primary-teal">
+              Approve</button>
+          {% endif %}
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" style="color:#6b7a8d;">No devices match this filter.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<p style="color:#8a97a8;font-size:.8rem;margin-top:1rem;">
+  A device is marked offline after {{ offline_seconds }} seconds without a heartbeat.
+  Robots are claimed and named by the teams themselves — assign one from a competition's
+  readiness page only if a team cannot.
+</p>
+
+<script>
+// Live badges, same socket as the participant page.
+(function () {
+  var ws, retry = 1000;
+  function connect() {
+    var scheme = location.protocol === 'https:' ? 'wss' : 'ws';
+    ws = new WebSocket(scheme + '://' + location.host + '/ws/devices/');
+    ws.onopen = function () { retry = 1000; };
+    ws.onmessage = function (ev) {
+      var d = JSON.parse(ev.data);
+      var row = document.querySelector('[data-device-id="' + d.device_id + '"]');
+      if (!row) { return; }
+      var cell = row.querySelector('.device-status');
+      if (!cell) { return; }
+      var map = {ONLINE: ['dot-online', 'Online'], ERROR: ['dot-error', 'Error'],
+                 OFFLINE: ['dot-offline', 'Offline']};
+      var s = map[d.status] || map.OFFLINE;
+      var age = d.seconds_since_seen === null ? 'never seen'
+                : (d.seconds_since_seen < 60 ? d.seconds_since_seen + ' s ago'
+                   : Math.round(d.seconds_since_seen / 60) + ' min ago');
+      cell.innerHTML = '<span class="dot ' + s[0] + '"></span>' + s[1] +
+                       '<div class="mac">' + age + '</div>';
+    };
+    ws.onclose = function () { retry = Math.min(retry * 2, 30000); setTimeout(connect, retry); };
+  }
+  connect();
+})();
+</script>
+{% endblock %}

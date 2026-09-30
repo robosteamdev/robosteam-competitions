@@ -1,0 +1,85 @@
+{% extends "contest/organise/base_organise.html" %}
+{% block title %}<title>{{ contest.name }} — Organiser — RoboSTEAM Academy</title>{% endblock %}
+{% block page_title %}{{ contest.name }}{% endblock %}
+{% block page_subtitle %}<div class="page-header-sub">{{ contest.get_status_display }}</div>{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'contest:organise_dashboard' %}">Organiser</a></li>
+<li class="breadcrumb-item active">{{ contest.name }}</li>
+{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+  <div>
+    <a href="{% url 'contest:organise_dashboard' %}" style="font-size:13px;color:#6b7a8d;">&larr; Dashboard</a>
+    <h2 style="font-family:'Poppins',sans-serif;font-weight:700;margin:0.25rem 0 0;">{{ contest.name }}</h2>
+    <span class="badge bg-secondary">{{ contest.get_status_display }}</span>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'contest:organise_readiness' contest.id %}" class="btn btn-sm btn-outline-teal">Hardware Readiness</a>
+    <a href="{% url 'contest:contest_competitions' contest.id %}" class="btn btn-sm btn-outline-teal">View Live Board</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="contest-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 style="margin:0;">Teams</h5>
+        <a href="{% url 'contest:organise_team_new' contest.id %}" class="btn btn-sm btn-primary-teal">+ Add Team</a>
+      </div>
+      {% for team in teams %}
+      <div class="d-flex align-items-center justify-content-between py-2" style="border-bottom:1px solid #f0f0f0;">
+        <span>{{ team.name }}</span>
+        <div class="d-flex gap-2">
+          <a href="{% url 'contest:organise_team_edit' team.id %}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;padding:2px 8px;">Edit</a>
+          <a href="{% url 'contest:organise_team_delete' team.id %}" class="btn btn-sm btn-outline-danger" style="font-size:12px;padding:2px 8px;">Delete</a>
+        </div>
+      </div>
+      {% empty %}
+      <p style="color:#6b7a8d;margin:0;">No teams yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="contest-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 style="margin:0;">Categories</h5>
+        <a href="{% url 'contest:organise_category_new' contest.id %}" class="btn btn-sm btn-primary-teal">+ Add Category</a>
+      </div>
+      {% for cat in categories %}
+      <div class="d-flex align-items-center justify-content-between py-2" style="border-bottom:1px solid #f0f0f0;">
+        <div>
+          <span>{{ cat.name }}</span>
+          <span class="badge bg-secondary ms-2" style="font-size:11px;">{{ cat.get_competition_type_display }}</span>
+        </div>
+        <a href="{% url 'contest:organise_category_edit' cat.id %}" class="btn btn-sm btn-outline-secondary" style="font-size:12px;padding:2px 8px;">Edit</a>
+      </div>
+      {% empty %}
+      <p style="color:#6b7a8d;margin:0;">No categories yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<h5 style="font-family:'Poppins',sans-serif;margin:2rem 0 1rem;">Registered Teams</h5>
+{% if registrations %}
+<div class="table-responsive">
+  <table class="table competition-table">
+    <thead>
+      <tr><th>Team</th><th>Account</th><th>Registered</th></tr>
+    </thead>
+    <tbody>
+      {% for reg in registrations %}
+      <tr>
+        <td>{{ reg.team.name }}</td>
+        <td>{{ reg.user.username }}</td>
+        <td>{{ reg.registered_at|date:"d M Y H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p style="color:#6b7a8d;">No teams registered yet.</p>
+{% endif %}
+{% endblock %}

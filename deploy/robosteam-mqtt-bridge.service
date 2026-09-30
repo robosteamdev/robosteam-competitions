@@ -1,0 +1,37 @@
+[Unit]
+Description=RoboSTEAM Competitions — MQTT bridge (lap events, heartbeats, PONG)
+Documentation=https://github.com/robosteamdev/robosteam-competitions
+After=network-online.target redis-server.service
+Wants=network-online.target
+Requires=redis-server.service
+# Never stop retrying. A competition runs for hours; the default rate limit
+# gives up after 5 restarts in 10s and would leave the event dead.
+# NOTE: this key lives in [Unit] — systemd silently IGNORES it in [Service].
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dev
+Group=dev
+WorkingDirectory=/opt/robosteam-competitions/scoreboard
+
+# -u: unbuffered, so `journalctl -f` shows lap events as they land instead of
+# in 4 KB bursts. This is the log you watch during a heat.
+ExecStart=/opt/robosteam-competitions/venv/bin/python -u manage.py mqtt_bridge
+
+# If the broker drops, the bridge exits; systemd brings it back. Note that on
+# broker disconnect the engine VOIDS every ACTIVE TIMED run by design (Phase
+# 5.10) — restarting does not un-void them, and the judge falls back to Manual
+# Mode. That is intended.
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=robosteam-mqtt
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

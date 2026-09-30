@@ -1,0 +1,33 @@
+{% extends "public/base.html" %}
+{% block title %}<title>News — RoboSTEAM Academy</title>{% endblock %}
+{% block public_content %}
+<div class="container-xl py-5">
+  <h1 class="section-title mb-4">News</h1>
+  {% if posts %}
+  <div class="row g-4">
+    {% for post in posts %}
+    <div class="col-md-6 col-lg-4">
+      <a href="/news/{{ post.slug }}/" style="text-decoration:none;color:inherit;display:block;height:100%;">
+        <div class="card-robo">
+          {% if post.cover_image %}
+            <img src="{{ post.cover_image.url }}" class="card-cover" alt="{{ post.title }}">
+          {% else %}
+            <div class="card-cover-placeholder"><span style="font-size:1.5rem;">📰</span></div>
+          {% endif %}
+          <div class="p-4">
+            <p style="font-size:12px;color:#8aabb6;margin-bottom:0.4rem;">{{ post.published_at|date:"d M Y" }}</p>
+            <h5 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:0.5rem;">{{ post.title }}</h5>
+            {% if post.excerpt %}
+              <p style="font-size:14px;margin:0;">{{ post.excerpt }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#8aabb6;">No news posts yet. Check back soon.</p>
+  {% endif %}
+</div>
+{% endblock %}

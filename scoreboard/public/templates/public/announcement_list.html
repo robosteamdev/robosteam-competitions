@@ -1,0 +1,25 @@
+{% extends "public/base.html" %}
+{% block title %}<title>Upcoming Contests — RoboSTEAM Academy</title>{% endblock %}
+{% block public_content %}
+<div class="container-xl py-5">
+  <h1 class="section-title mb-4">Upcoming Contests</h1>
+  {% if announcements %}
+  <div class="row g-3">
+    {% for ann in announcements %}
+    <div class="col-md-6 col-lg-4">
+      <a href="/contests/upcoming/{{ ann.pk }}/" style="text-decoration:none;color:inherit;display:block;height:100%;">
+        <div class="announcement-card h-100">
+          <div class="announcement-date mb-1">{{ ann.event_date|date:"d M Y" }}</div>
+          <h5 style="font-family:'Poppins',sans-serif;font-weight:700;margin-bottom:0.35rem;">{{ ann.title }}</h5>
+          <p style="font-size:13px;color:#6b7a8d;margin-bottom:0.35rem;">&#128205; {{ ann.location }}</p>
+          <p style="font-size:14px;margin:0;">{{ ann.short_description }}</p>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#8aabb6;">No upcoming contests announced yet. Check back soon.</p>
+  {% endif %}
+</div>
+{% endblock %}

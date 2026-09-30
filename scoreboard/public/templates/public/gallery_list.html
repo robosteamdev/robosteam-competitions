@@ -1,0 +1,33 @@
+{% extends "public/base.html" %}
+{% block title %}<title>Gallery — RoboSTEAM Academy</title>{% endblock %}
+{% block public_content %}
+<div class="container-xl py-5">
+  <h1 class="section-title mb-4">Gallery</h1>
+  {% if albums %}
+  <div class="row g-4">
+    {% for album in albums %}
+    <div class="col-md-6 col-lg-4">
+      <a href="/gallery/{{ album.slug }}/" style="text-decoration:none;color:inherit;display:block;height:100%;">
+        <div class="card-robo">
+          {% if album.cover_photo %}
+            <img src="{{ album.cover_photo.url }}" class="card-gallery-cover" alt="{{ album.title }}">
+          {% else %}
+            <div class="card-gallery-placeholder"><span style="font-size:2rem;">📷</span></div>
+          {% endif %}
+          <div class="p-4">
+            <p style="font-size:12px;color:#8aabb6;margin-bottom:0.35rem;">{{ album.event_date|date:"d M Y" }}</p>
+            <h5 style="font-family:'Poppins',sans-serif;font-weight:700;margin:0;">{{ album.title }}</h5>
+            {% if album.description %}
+              <p style="font-size:13px;color:#6b7a8d;margin-top:0.4rem;margin-bottom:0;">{{ album.description|truncatewords:15 }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#8aabb6;">No gallery albums yet. Photos from competitions will appear here.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "public/base.html" %}
+{% block title %}<title>{{ album.title }} — Gallery — RoboSTEAM Academy</title>{% endblock %}
+{% block public_content %}
+<div class="container-xl py-5">
+  <a href="/gallery/" class="text-teal" style="font-size:14px;">&larr; Gallery</a>
+  <div class="mt-3 mb-4">
+    <p style="font-size:13px;color:#6b7a8d;margin-bottom:0.4rem;">{{ album.event_date|date:"d F Y" }}</p>
+    <h1 style="font-family:'Poppins',sans-serif;font-weight:700;font-size:2rem;">{{ album.title }}</h1>
+    {% if album.description %}
+      <p style="font-size:16px;color:#6b7a8d;">{{ album.description }}</p>
+    {% endif %}
+  </div>
+
+  {% if album.photos.all %}
+  <div class="row g-3">
+    {% for photo in album.photos.all %}
+    <div class="col-6 col-md-4 col-lg-3 gallery-photo-item">
+      <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" loading="lazy">
+      {% if photo.caption %}
+        <p style="font-size:12px;color:#6b7a8d;margin-top:0.35rem;">{{ photo.caption }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <div style="font-size:3rem;margin-bottom:1rem;">📷</div>
+    <p class="text-muted">No photos in this album yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

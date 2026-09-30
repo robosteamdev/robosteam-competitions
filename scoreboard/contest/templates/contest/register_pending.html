@@ -1,0 +1,16 @@
+{% extends "contest/base_site.html" %}
+{% block title %}<title>Account Pending — RoboSTEAM Academy</title>{% endblock %}
+{% block page_content %}
+<div style="background:#0f1728;min-height:calc(100vh - 200px);padding:2rem 1rem;">
+  <div class="login-card" style="text-align:center;">
+    {% load static %}
+    <img src="{% static 'contest/img/robostem-academy.png' %}" alt="RoboSTEAM Academy" height="52" class="mb-3">
+    <h4 style="font-family:'Poppins',sans-serif;font-weight:700;color:#1a2332;">Request Submitted</h4>
+    <p style="color:#6b7a8d;margin-top:1rem;">
+      Your account request has been received. An administrator will review it and activate
+      your account. You will be able to log in once approved.
+    </p>
+    <a href="/" class="btn btn-outline-teal mt-3">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

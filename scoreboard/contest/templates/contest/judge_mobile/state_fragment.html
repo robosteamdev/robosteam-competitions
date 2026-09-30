@@ -1,0 +1,86 @@
+{% load static time_filters %}
+
+<div class="jm-state">
+
+{% if all_done %}
+  <div class="jm-status-ok">&#10003; All runs complete</div>
+  <div class="jm-status-sub">{{ competition.name }} is finished.</div>
+  <a href="{% url 'contest:judge_select' %}" class="jm-btn jm-btn-create" style="margin-top:2rem;">
+    &#8592; Back to Track List
+  </a>
+
+{% elif active_run is None %}
+  <div style="color:var(--jm-muted);font-size:0.9rem;margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:1px;">
+    Next up
+  </div>
+
+  {% for team in available_teams %}
+  <button type="button" class="jm-btn jm-btn-create"
+          onclick="doCreate({{ competition.id }}, {{ team.id }})">
+    &#9654; {{ team.name }}
+  </button>
+  {% empty %}
+  <div class="jm-all-done">No teams remaining.</div>
+  {% endfor %}
+
+{% elif active_run.state == 'PENDING' %}
+  <div style="color:var(--jm-muted);font-size:0.9rem;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px;">
+    Ready
+  </div>
+  <div class="jm-team-name">{{ active_run.team.name }}</div>
+  <div class="jm-run-label">Waiting to start</div>
+
+  <button type="button" class="jm-btn jm-btn-start"
+          onclick="doStart({{ active_run.id }})">&#9654; START</button>
+
+  <button type="button" class="jm-btn jm-btn-create" style="font-size:1rem;padding:0.8rem;"
+          onclick="doDiscard({{ active_run.id }})">Cancel run</button>
+
+{% elif active_run.state == 'ACTIVE' %}
+  <div class="jm-team-name">{{ active_run.team.name }}</div>
+
+  {% if competition.competition_type == 'TIMED' %}
+    <div class="jm-timer running" id="jm-timer"
+         data-start="{{ active_run.start_time.isoformat }}">
+      00:00.0
+    </div>
+
+    <button type="button" class="jm-btn jm-btn-stop"
+            onclick="doStop({{ active_run.id }})">&#9632; STOP / VOID</button>
+    <div style="font-size:0.8rem;color:var(--jm-muted);margin-top:0.5rem;">
+      Timer stops automatically when laps complete.
+    </div>
+
+  {% else %}
+    <div class="jm-timer" id="jm-timer"
+         data-start="{{ active_run.start_time.isoformat }}">
+      00:00
+    </div>
+
+    <a href="{% url 'contest:judge_score' competition.id active_run.id %}"
+       class="jm-btn jm-btn-done">&#10003; DONE &mdash; Enter Score</a>
+  {% endif %}
+
+{% endif %}
+
+{% if competition.competition_type == 'TIMED' and last_scored_run %}
+  <!-- A TIMED run finalizes by itself, so the penalty is entered after the fact. -->
+  <div style="margin-top:2rem;padding-top:1.25rem;border-top:1px solid #2a3547;">
+    <div style="color:var(--jm-muted);font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">
+      Penalty &mdash; last run
+    </div>
+    <div style="font-size:1rem;margin-bottom:0.5rem;">
+      {{ last_scored_run.team.name }}
+      <span style="color:var(--jm-muted);">{{ last_scored_run.total_time_ms|format_ms }}</span>
+    </div>
+    <div style="display:flex;gap:0.5rem;">
+      <input type="number" id="jm-penalty-input" min="0" step="0.1" inputmode="decimal"
+             placeholder="Seconds" value="{{ last_scored_run.penalty_time_ms|penalty_seconds }}"
+             style="flex:1;padding:0.6rem;font-size:1.1rem;text-align:center;border-radius:8px;border:1px solid #33415c;background:#1b2436;color:#fff;">
+      <button type="button" class="jm-btn jm-btn-create" style="flex:0 0 auto;margin:0;padding:0.6rem 1.2rem;font-size:1rem;"
+              onclick="doPenalty({{ last_scored_run.id }})">Apply</button>
+    </div>
+  </div>
+{% endif %}
+
+</div>

@@ -1,0 +1,16 @@
+{% extends "contest/base.html" %}
+{% block content %}
+<h1> {{team.name}}</h1>
+<div>
+{{team.description}}
+</div>
+<p>
+<ul>
+  {% for item in competitions %}
+  <li><a href="{% url 'contest:competition_board' item.id  %}">{{ item.name }}</a> {{item.description}} Max. Score: {{item.max_score}}</li>
+  {% endfor %}
+</ul>
+</p>
+
+
+{% endblock %}

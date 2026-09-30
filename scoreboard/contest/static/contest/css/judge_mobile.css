@@ -1,0 +1,181 @@
+/* ── Mobile Judge Interface ──────────────────────────────────────── */
+
+:root {
+  --jm-bg:      #0f1728;
+  --jm-surface: #1a2742;
+  --jm-teal:    #2d8fa5;
+  --jm-green:   #1db85c;
+  --jm-red:     #e03e3e;
+  --jm-gold:    #f5a623;
+  --jm-text:    #d0e8f0;
+  --jm-muted:   #8aabb6;
+}
+
+html, body {
+  height: 100%;
+  background: var(--jm-bg);
+  color: var(--jm-text);
+  font-family: 'Poppins', sans-serif;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ── Top bar ── */
+.jm-topbar {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--jm-surface);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  gap: 0.75rem;
+}
+.jm-back {
+  color: var(--jm-teal);
+  text-decoration: none;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.jm-track-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--jm-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jm-competition-name {
+  font-size: 0.75rem;
+  color: var(--jm-muted);
+}
+
+/* ── State area ── */
+.jm-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  min-height: calc(100vh - 64px);
+}
+
+.jm-team-name {
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+.jm-run-label {
+  font-size: 0.85rem;
+  color: var(--jm-muted);
+  margin-bottom: 2rem;
+}
+
+/* ── Timer ── */
+.jm-timer {
+  font-size: clamp(3rem, 16vw, 5.5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+  color: #fff;
+  margin-bottom: 2rem;
+  line-height: 1;
+}
+.jm-timer.running { color: var(--jm-gold); }
+
+/* ── Action buttons ── */
+.jm-btn {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  padding: 1.5rem;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: filter 0.1s, transform 0.1s;
+  -webkit-appearance: none;
+  text-align: center;
+  text-decoration: none;
+  margin: 0 auto 1rem;
+}
+.jm-btn:active { filter: brightness(0.85); transform: scale(0.97); }
+
+.jm-btn-start  { background: var(--jm-green); color: #fff; }
+.jm-btn-stop   { background: var(--jm-red);   color: #fff; }
+.jm-btn-done   { background: var(--jm-teal);  color: #fff; }
+.jm-btn-create { background: var(--jm-surface); color: var(--jm-teal);
+                 border: 2px solid var(--jm-teal); font-size: 1.1rem; padding: 1.1rem; }
+.jm-btn-submit { background: var(--jm-green); color: #fff; }
+
+/* ── Category selector ── */
+.jm-select-list { padding: 1rem; }
+.jm-category-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--jm-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  color: var(--jm-text);
+  transition: background 0.15s;
+}
+.jm-category-card:active { background: #243256; }
+.jm-category-card-name { font-weight: 700; font-size: 1.05rem; }
+.jm-category-card-meta { font-size: 0.8rem; color: var(--jm-muted); margin-top: 2px; }
+.jm-category-arrow { color: var(--jm-teal); font-size: 1.2rem; }
+
+/* ── Number pad ── */
+.jm-score-display {
+  font-size: clamp(3.5rem, 20vw, 6rem);
+  font-weight: 700;
+  color: #fff;
+  min-height: 5rem;
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+}
+.jm-score-display.placeholder { color: var(--jm-muted); }
+
+.jm-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  max-width: 320px;
+  margin: 0 auto 1rem;
+}
+.jm-numpad-btn {
+  background: var(--jm-surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  -webkit-appearance: none;
+}
+.jm-numpad-btn:active { background: #2d3f60; }
+.jm-numpad-clear { color: var(--jm-gold); }
+.jm-numpad-back  { color: var(--jm-red);  }
+
+/* ── Status messages ── */
+.jm-status-ok {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--jm-green);
+  margin-bottom: 0.5rem;
+}
+.jm-status-sub { font-size: 1rem; color: var(--jm-muted); }
+
+/* ── All-done state ── */
+.jm-all-done { color: var(--jm-muted); font-size: 1.1rem; margin-bottom: 1.5rem; }

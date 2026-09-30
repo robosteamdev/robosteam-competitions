@@ -1,0 +1,65 @@
+{% load time_filters %}
+
+{% if competition.status == 'OPEN' %}
+
+  {% if show_controls and available_teams %}
+  <div class="form-card mb-3">
+    <form method="post" action="{% url 'contest:run_create' competition.id %}" class="d-flex align-items-center gap-2 flex-wrap">
+      {% csrf_token %}
+      <label for="team_id" class="fw-semibold mb-0" style="font-size:14px;white-space:nowrap;">Queue run for:</label>
+      <select name="team_id" id="team_id" class="form-select form-select-sm" style="width:auto;min-width:180px;">
+        {% for team in available_teams %}
+        <option value="{{ team.id }}">{{ team.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-sm btn-gold-fill">Create Run</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Preliminary results -->
+  {% if preliminary_results %}
+  <div class="mb-3">
+    <h6 class="text-muted mb-2" style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;">
+      {% if competition.competition_type == 'TIMED' %}Best times so far{% else %}Best scores so far{% endif %}
+    </h6>
+    <div class="d-flex flex-wrap gap-2">
+      {% for item in preliminary_results %}
+      <span class="badge-teal badge px-3 py-2" style="font-size:13px;">
+        {{ item.team_name }} &mdash;
+        {% if competition.competition_type == 'TIMED' %}
+          {{ item.best_time_ms|format_ms }}
+        {% else %}
+          {{ item.max_score }} pts
+        {% endif %}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+{% endif %}
+
+{% if competition.status == 'CLOSED' %}
+<div class="card-robo mb-3 p-3">
+  <h6 class="mb-2 text-muted" style="font-size:12px;text-transform:uppercase;">Final Results</h6>
+  <div class="d-flex flex-wrap gap-2">
+    {% for item in results %}
+    <span class="badge-teal badge px-3 py-2" style="font-size:13px;">
+      {{ item.team.name }} &mdash;
+      {% if competition.competition_type == 'TIMED' %}
+        {{ item.score|format_ms }}
+      {% else %}
+        {{ item.score }} pts
+      {% endif %}
+    </span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if competition.status == 'NEW' %}
+<div class="alert alert-info py-2" style="font-size:14px;">&#128276; Get ready! Competition has not started yet.</div>
+{% endif %}
+
+{% include 'contest/runs.html' %}

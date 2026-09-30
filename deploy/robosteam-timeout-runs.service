@@ -1,0 +1,34 @@
+[Unit]
+Description=RoboSTEAM Competitions — run timeout sweep and device offline sweep
+Documentation=https://github.com/robosteamdev/robosteam-competitions
+After=network-online.target redis-server.service
+Wants=network-online.target
+Requires=redis-server.service
+# Never stop retrying. A competition runs for hours; the default rate limit
+# gives up after 5 restarts in 10s and would leave the event dead.
+# NOTE: this key lives in [Unit] — systemd silently IGNORES it in [Service].
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dev
+Group=dev
+WorkingDirectory=/opt/robosteam-competitions/scoreboard
+
+# Two jobs in one loop: void ACTIVE runs past timeout_seconds, and mark devices
+# OFFLINE after DEVICE_OFFLINE_SECONDS of silence. Nothing else ever clears the
+# ONLINE flag (H7), so if this is not running every badge stays green forever.
+ExecStart=/opt/robosteam-competitions/venv/bin/python -u manage.py timeout_runs --interval 5
+
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=robosteam-timeout
+
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

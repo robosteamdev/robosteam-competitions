@@ -1,0 +1,9 @@
+{% extends "contest/base_site.html" %}
+{% block extra_css %}
+<style>
+  body { background: #0f1728; color: #d0e8f0; }
+  .card-robo, .announcement-card, .about-section, .login-card, .form-card { color: var(--text); }
+  h1, h2, h3, h4, h5, h6 { color: inherit; }
+</style>
+{% endblock %}
+{% block page_content %}{% block public_content %}{% endblock %}{% endblock %}
